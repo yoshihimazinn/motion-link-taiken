@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1d6b4e">
+  <title>Motion-Link 体験版</title>
+  <link rel="icon" href="app/motion-link.ico">
+  <style>
+    :root { --ink: #17352d; --muted: #4d625b; --green: #1d6b4e; --green-dark: #154f3a; --paper: #faf6ec; --card: #ffffff; --line: #e4dccb; }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font-family: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif; font-size: 20px; line-height: 1.7; }
+    main { max-width: 760px; margin: 0 auto; padding: 32px 16px 56px; }
+    h1 { margin: 0 0 8px; font-size: 40px; line-height: 1.3; }
+    h2 { margin: 0 0 10px; font-size: 26px; }
+    p { margin: 0 0 12px; }
+    .lead { font-size: 22px; color: var(--muted); }
+    .card { margin-top: 22px; padding: 22px 24px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; }
+    .start { display: inline-block; margin: 18px 0 6px; padding: 18px 34px; color: #fff; background: var(--green); border-radius: 14px; font-size: 28px; font-weight: 800; text-decoration: none; }
+    .start:hover, .start:focus-visible { background: var(--green-dark); }
+    .start:focus-visible, a:focus-visible { outline: 4px solid #f4ca47; outline-offset: 3px; }
+    ol, ul { margin: 0; padding-left: 1.4em; }
+    li + li { margin-top: 6px; }
+    a { color: var(--green-dark); font-weight: 700; }
+    .note { font-size: 17px; color: var(--muted); }
+    footer { margin-top: 28px; font-size: 16px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Motion-Link 体験版</h1>
+    <p class="lead">座ったまま運動をして、写真の曇りをふいてきれいにする試作です。使ってみた感想をいただくために、限られた方にだけお見せしています。</p>
+    <a class="start" href="app/index.html?trial=1">ブラウザで はじめる</a>
+    <p class="note">はじめに「カメラを使いますか」と聞かれたら「許可」を押してください。</p>
+
+    <section class="card" aria-labelledby="need">
+      <h2 id="need">必要なもの</h2>
+      <ul>
+        <li>カメラのついた PC（ノート PC の内蔵カメラでもかまいません）</li>
+        <li>Google Chrome または Microsoft Edge</li>
+        <li>座った体全体（頭から足もとまで）がカメラに映るように、少し離れて座ってください</li>
+      </ul>
+    </section>
+
+    <section class="card" aria-labelledby="safe">
+      <h2 id="safe">安心して使っていただくために</h2>
+      <ul>
+        <li>カメラの映像は、保存も送信もしません。体の動きを数えるためだけに、お使いのブラウザの中で使います。</li>
+        <li>運動の記録は、お使いのブラウザの中にだけ残ります。どこにも送りません。</li>
+        <li>設定の画面はありません（数え方は変えられません）。</li>
+      </ul>
+    </section>
+
+    <section class="card" aria-labelledby="feedback">
+      <h2 id="feedback">感想の送りかた</h2>
+      <ol>
+        <li>最初の画面の「感想を送る」を押します。</li>
+        <li>「よかった」「わかりにくい」「うまく動かない」「こうしてほしい」から1つ選び、ひとこと書けます。</li>
+        <li>「ファイルに保存する」を押すと、「ダウンロード」に感想のファイルができます。</li>
+        <li>そのファイルを、この体験版を教えてくれた人に LINE やメールで送ってください。</li>
+      </ol>
+    </section>
+
+    <section class="card" aria-labelledby="offline">
+      <h2 id="offline">PC に入れて使う（Windows）</h2>
+      <p>インターネットにつながない PC で使うときは、こちらをダウンロードしてください（約47MB）。</p>
+      <ol>
+        <li><a href="download/Motion-Link-taiken.zip" download>Motion-Link 体験版（zip）をダウンロード</a></li>
+        <li>zip を右クリックして「すべて展開」を選びます。</li>
+        <li>展開したフォルダの「Motion-Linkをはじめる」をダブルクリックします（くわしくは中の「はじめにお読みください」）。</li>
+      </ol>
+    </section>
+
+    <footer>
+      <p>試作のため、予告なく変えたり止めたりすることがあります。<br>
+      体の動きを読む仕組みに MediaPipe（Apache License 2.0）を使っています：<a href="app/THIRD_PARTY_NOTICES.txt">使っているもの</a></p>
+    </footer>
+  </main>
+</body>
+</html>

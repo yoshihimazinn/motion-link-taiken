@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1d6b4e">
+  <title>Motion-Link ローカル試作</title>
+  <!-- 公開ページ（GitHub Pages）では、いつも体験版（?trial=1）で開く。設定の画面は出さず、どこにもつながない -->
+  <script>if (!/[?&]trial=1(&|$)/.test(location.search)) location.replace(location.pathname + "?trial=1" + location.hash);</script>
+  <link rel="stylesheet" href="styles.css?v=2026.10.13-3">
+</head>
+<body>
+  <header class="app-header is-landing">
+    <a class="brand" href="#landing" data-nav="landing" aria-label="Motion-Link 最初の画面">
+      <span class="brand-mark" aria-hidden="true">M</span>
+      <span><strong>Motion-Link</strong><small>運動が、家族への便りになる。</small></span>
+    </a>
+    <nav class="main-nav" aria-label="メインメニュー">
+      <button class="nav-button is-active" type="button" data-view="home">運動する</button>
+      <button class="nav-button" type="button" data-view="dashboard">家族ダッシュボード</button>
+      <button class="nav-button" type="button" data-view="settings">設定・運営</button>
+    </nav>
+    <div class="local-badge"><span></span> このPCだけで動作</div>
+  </header>
+
+  <main>
+    <section id="view-landing" class="view is-active landing-view" aria-labelledby="landing-title">
+      <div class="landing-intro">
+        <div class="landing-symbol" aria-hidden="true"><span></span><i></i></div>
+        <p class="eyebrow">Motion-Link</p>
+        <h1 id="landing-title" tabindex="-1">今日は何をしますか？</h1>
+        <p>大きなボタンをひとつ選んでください。</p>
+      </div>
+      <div class="entry-grid">
+        <button class="entry-card exercise-entry" type="button" data-entry="home">
+          <span class="entry-visual" aria-hidden="true"><span class="mini-person">●</span><i></i></span>
+          <span class="entry-copy"><small>本人向け</small><strong>運動する</strong><span>運動を選んで、カメラの前で始めます</span></span>
+          <b aria-hidden="true">→</b>
+        </button>
+        <button class="entry-card family-entry" type="button" data-entry="dashboard">
+          <span class="entry-visual" aria-hidden="true">🌱</span>
+          <span class="entry-copy"><small>本人・家族向け</small><strong>家族<wbr>ダッシュボード</strong><span>運動の記録と、育った植物を見ます</span></span>
+          <b aria-hidden="true">→</b>
+        </button>
+      </div>
+      <p class="landing-privacy">カメラ映像や運動記録を外部へ送らないローカル試作です。</p>
+      <!-- 感想を送る（家族のしくみがあるときだけ。この PC の中にためる） -->
+      <p class="feedback-entry"><button class="secondary-button feedback-open" type="button" data-feedback-open hidden>感想を送る</button></p>
+    </section>
+
+    <section id="view-home" class="view" aria-labelledby="home-title">
+      <!-- 運動する人の名前（2人以上のときだけ出す。押すと人を選ぶ画面。PIN は聞かない。app.js renderPersonSwitch） -->
+      <button id="person-switch" class="secondary-button person-switch" type="button" hidden><svg class="person-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></svg><span id="person-switch-name"></span></button>
+      <button id="replay-intro" class="secondary-button intro-replay" type="button"><span aria-hidden="true">?</span>つかい方</button>
+      <div class="hero-copy">
+        <p class="eyebrow">きょうも、無理なく一歩ずつ</p>
+        <h1 id="home-title" tabindex="-1">運動をえらんでください</h1>
+        <!-- 回数が0回で終えたときだけ、見出しの代わりに出す（責めることば・数字は出さない） -->
+        <p id="home-notice" class="home-notice" role="status" hidden><strong>おつかれさまでした</strong><span>もう一度やるときは「この運動をはじめる」を押してください</span></p>
+      </div>
+
+      <div class="exercise-picker" aria-label="運動選択">
+        <div id="exercise-orbit" class="exercise-orbit"></div>
+        <article id="selected-exercise" class="selected-exercise" aria-live="polite"></article>
+        <div class="picker-controls">
+          <button id="previous-exercise" class="round-control" type="button" aria-label="前の運動">←</button>
+          <button id="start-exercise" class="primary-button start-button" type="button">この運動をはじめる</button>
+          <button id="next-exercise" class="round-control" type="button" aria-label="次の運動">→</button>
+        </div>
+      </div>
+
+      <article id="daily-quest-teaser" class="daily-quest-teaser">
+        <div class="quest-letter" aria-hidden="true">✉</div>
+        <div class="quest-teaser-copy">
+          <h2 id="daily-quest-teaser-title">孫から写真が届きました</h2>
+          <p id="daily-quest-teaser-detail">カメラの前で手を動かして、写真のくもりをふき取りましょう。</p>
+        </div>
+        <div class="quest-teaser-reward"><span>ごほうび</span><strong>木が3回分そだちます</strong></div>
+        <button id="start-daily-quest" class="secondary-button" type="button">写真をきれいにする</button>
+      </article>
+
+      <!-- 家族の端末から届いた声（2段目）。まだ聞いていない声があるときだけ出す（app.js renderVoiceArrival） -->
+      <article id="voice-arrival" class="voice-arrival" hidden>
+        <div class="quest-letter" aria-hidden="true">♪</div>
+        <div class="quest-teaser-copy">
+          <h2 id="voice-arrival-title"></h2>
+          <p>「きく」を押すと、声が流れます。</p>
+        </div>
+        <button id="play-arrival" class="secondary-button" type="button">きく</button>
+      </article>
+    </section>
+
+    <section id="view-session" class="view session-view" aria-labelledby="session-title">
+      <!-- 運動中の画面：テレビから2m離れて読めるよう、回数と「一時停止・終わる」をスクロールなしで見える所に置く -->
+      <div class="session-topbar">
+        <button id="back-home" class="secondary-button quiet-button" type="button">← もどる</button>
+        <div class="session-exercise-meta">
+          <h2 id="session-title" tabindex="-1">運動名</h2>
+          <p id="session-difficulty" class="difficulty-label"></p>
+        </div>
+        <div class="session-controls">
+          <!-- 見え方（映像と線・映像だけ・線だけ）。映像が出せないときは隠す（app.js syncCameraView） -->
+          <button id="camera-view" class="secondary-button" type="button" hidden aria-label="画面の見え方を変えます。いまは、映像と体の線">見え方：映像と線</button>
+          <button id="pause-session" class="secondary-button" type="button">一時停止</button>
+          <button id="finish-session" class="secondary-button danger" type="button">ここで終わる</button>
+        </div>
+      </div>
+      <div class="motion-comparison">
+        <article class="motion-card">
+          <header class="step-header">
+            <strong>あなたの姿</strong>
+            <span id="camera-state-label" class="camera-state-label"><i aria-hidden="true"></i><b>準備中</b></span>
+          </header>
+          <div class="camera-panel">
+            <video id="camera-video" autoplay muted playsinline aria-label="運動カメラ映像"></video>
+            <!-- 奥行きカメラ（端末サービス --color-preview）の色つき映像。描くだけで保存しない -->
+            <canvas id="camera-preview" aria-hidden="true"></canvas>
+            <!-- 「線だけ」のとき映像にかぶせる地。映像は止めない（体の動きを読むのは映像のコマごと） -->
+            <div id="camera-cover" aria-hidden="true"></div>
+            <canvas id="pose-overlay" aria-hidden="true"></canvas>
+            <canvas id="motion-sampler" width="160" height="120" hidden></canvas>
+            <div id="camera-guide" class="camera-guide" role="status" aria-live="polite">
+              <div class="guide-motion" aria-hidden="true"><span></span><i></i></div>
+              <strong id="camera-guide-title">カメラを準備しています</strong>
+              <span id="camera-guide-detail">そのままお待ちください</span>
+              <button id="camera-retry" class="primary-button" type="button" hidden>もう一度ためす</button>
+            </div>
+            <div id="position-guide" class="position-guide" role="status" aria-live="polite" hidden>
+              <span class="position-guide-arrow" aria-hidden="true"></span>
+              <div><strong id="position-guide-title"></strong><small id="position-guide-detail"></small></div>
+              <span id="position-guide-distance" class="position-guide-distance" aria-hidden="true"></span>
+            </div>
+            <div class="camera-privacy">● 録画・送信はしません</div>
+            <!-- はじめての使い方（3枚のカードを1枚ずつ）。映像の上だけに重ね、「一時停止」「ここで終わる」はふさがない。下では数え続ける。
+                 運動選択の「つかい方」から見るときは、画面のまん中に出す（app.js showIntro） -->
+            <div id="intro" class="intro" role="dialog" aria-labelledby="intro-text" hidden>
+              <div class="intro-card">
+                <div class="intro-picture" aria-hidden="true">
+                  <img data-card="0" src="assets/intro-seat.svg" alt="">
+                  <svg data-card="1" class="intro-lines" viewBox="0 0 160 160">
+                    <rect width="160" height="160" rx="14" fill="#12231f"/>
+                    <circle cx="80" cy="34" r="13" fill="none" stroke="#f4ca47" stroke-width="5"/>
+                    <path d="M58 56 H102 M58 56 L62 100 M102 56 L98 100 M62 100 H98 M58 56 L46 84 L52 104 M102 56 L114 84 L108 104 M66 100 L64 126 L64 146 M94 100 L96 126 L96 146" fill="none" stroke="#f4ca47" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span data-card="2" class="intro-count"><b>2</b><small>回</small><i>♪</i></span>
+                </div>
+                <p id="intro-text" class="intro-text"></p>
+                <div class="intro-actions">
+                  <span class="intro-dots"><i></i><i></i><i></i></span>
+                  <button id="intro-skip" class="secondary-button" type="button">とばす</button>
+                  <button id="intro-next" class="primary-button" type="button">次へ</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- ひとこと（「2回できました」など）は映像の下の帯に出す。映像の上に重ねると、座った人のひざ・足が隠れる -->
+          <p id="motion-feedback" class="motion-feedback" aria-live="polite"></p>
+        </article>
+        <div class="session-side">
+          <article class="demo-card" aria-labelledby="demo-label">
+            <p id="demo-label" class="demo-label">お手本</p>
+            <div class="demo-stage">
+              <canvas id="demo-stickman" width="540" height="540" aria-label="棒人間による運動のお手本"></canvas>
+              <strong id="demo-instruction-title" class="phrase-text">動きをゆっくりまねします。</strong>
+              <p id="demo-instruction-detail" class="phrase-text">無理のない範囲で動いてください。</p>
+            </div>
+          </article>
+          <article class="count-card" aria-label="回数">
+            <div class="count-display"><strong id="current-count">0</strong><span>回</span></div>
+            <p class="count-target">目標 <b id="target-count">5</b> 回</p>
+            <div class="progress-track" aria-hidden="true"><span id="session-progress"></span></div>
+          </article>
+        </div>
+      </div>
+      <div class="session-footer">
+        <p id="analysis-pill" class="analysis-pill" aria-live="polite" hidden></p>
+        <button id="demo-rep" class="secondary-button demo-button" type="button" hidden>カメラなしで1回</button>
+      </div>
+      <!-- 開発・ご家族の確認用（?debug=1 のときだけ表示）。体の数値はここだけで、本人の画面には出さない -->
+      <div id="family-readouts" class="family-readouts" hidden>
+        <div id="camera-status" class="camera-status"><span></span> カメラ準備中</div>
+        <dl class="session-metrics">
+          <div><dt>経過</dt><dd id="session-time">00:00</dd></div>
+          <div><dt>動き</dt><dd id="motion-level">待機中</dd></div>
+          <div><dt>認識</dt><dd id="tracking-confidence">準備中</dd></div>
+        </dl>
+        <section class="precision-panel" aria-labelledby="precision-title">
+          <div class="precision-heading"><strong id="precision-title">細かい動きの分析</strong><span id="sensor-source">カメラ準備中</span></div>
+          <dl class="precision-readouts">
+            <div><dt id="joint-angle-label">動作角度</dt><dd id="joint-angle">—</dd></div>
+            <div><dt>可動域</dt><dd id="range-of-motion">0%</dd></div>
+            <div><dt>体幹</dt><dd id="posture-state">—</dd></div>
+            <div><dt>左右安定</dt><dd id="balance-state">—</dd></div>
+            <div><dt>テンポ</dt><dd id="motion-tempo">測定中</dd></div>
+          </dl>
+        </section>
+        <p class="prototype-note">端末内AIで関節角度・可動域・体幹・左右安定・テンポを分析します。見えない部位は評価せず、利用できない場合だけ照明補正つき簡易判定へ切り替えます。</p>
+      </div>
+    </section>
+
+    <section id="view-quest" class="view quest-view" aria-labelledby="quest-title">
+      <div class="session-topbar">
+        <button id="back-from-quest" class="text-button" type="button">← 運動選択にもどる</button>
+      </div>
+      <div class="quest-heading">
+        <div><p class="eyebrow">孫から届いた写真</p><h1 id="quest-title" tabindex="-1">写真のくもりを、手でふき取ろう</h1></div>
+        <div class="quest-reward-pill"><span>ごほうび</span><strong>木が3回分そだちます</strong></div>
+      </div>
+      <div class="quest-layout">
+        <article class="panel quest-photo-card">
+          <div class="panel-heading"><div><p class="kicker">届いた写真</p><h2>まだ何が写っているか内緒です</h2></div><span id="quest-photo-status" class="prototype-tag">まだぼやけています</span></div>
+          <div id="quest-photo-stage" class="quest-photo-stage" aria-label="ふき取って見つける写真">
+            <canvas id="quest-photo-base" width="900" height="600"></canvas>
+            <canvas id="quest-photo-overlay" width="900" height="600" tabindex="0" aria-label="この上を指やマウスでなぞっても、写真をふき取れます"></canvas>
+            <div class="quest-sparkle" aria-hidden="true">✦</div>
+            <!-- 写真の上の手の印（動いている手だけ）。端末サービスでは両手、ブラウザのカメラでは動いた所の1つ -->
+            <div id="quest-motion-cursor" class="quest-motion-cursor" aria-hidden="true"></div>
+            <div id="quest-motion-cursor-other" class="quest-motion-cursor" aria-hidden="true"></div>
+          </div>
+          <div class="progress-track quest-progress" aria-hidden="true"><span id="quest-progress"></span></div>
+          <p class="quest-hint">カメラの前で手を左右や上下に動かしてください。写真を指やマウスで直接なぞっても、ふき取れます。</p>
+        </article>
+
+        <aside class="panel quest-motion-card">
+          <div class="panel-heading"><div><p class="kicker">手の動き</p><h2>手だけで大丈夫</h2></div></div>
+          <div class="quest-camera-panel">
+            <video id="quest-camera-video" autoplay muted playsinline aria-label="手の動きを見るカメラ映像"></video>
+            <canvas id="quest-motion-sampler" width="96" height="72" hidden></canvas>
+            <!-- 端末サービスのとき（映像はない）：映っている人の上半身の線 -->
+            <canvas id="quest-pose-overlay" class="quest-pose-overlay" aria-hidden="true"></canvas>
+            <div id="quest-camera-guide" class="quest-camera-guide phrase-text"><span aria-hidden="true">↔</span><strong>手をゆっくり<wbr>左右や上下へ</strong><small>全身を<wbr>映す必要はありません</small></div>
+          </div>
+          <div id="quest-camera-status" class="camera-status"><span></span> カメラ準備中</div>
+          <ol class="quest-steps phrase-text"><li>手や腕が<wbr>映る位置に<wbr>座ります</li><li>窓をふくように、<wbr>左右や上下へ<wbr>動かします</li><li>写真ぜんぶが<wbr>見えてきたら、<wbr>できあがりです</li></ol>
+          <!-- 開発・ご家族の確認用（?debug=1 のときだけ表示）。これでふき取った写真では元気の木はそだたない -->
+          <button id="quest-demo-swipe" class="secondary-button" type="button" hidden>デモでふき取る</button>
+          <p class="prototype-note">カメラの映像は保存しません。カメラがお休みのときも、写真を直接なぞれます。</p>
+        </aside>
+      </div>
+      <div id="quest-complete-panel" class="quest-complete-panel" hidden>
+        <span class="celebration" aria-hidden="true">✓</span>
+        <div><p class="eyebrow">きれいになりました！</p><h2>写真をアルバムに入れました</h2><p id="quest-complete-detail">元気の木が3回分そだちました。</p></div>
+        <button id="quest-view-album" class="primary-button" type="button">アルバムと植物を見る</button>
+      </div>
+    </section>
+
+    <section id="view-result" class="view result-view" aria-labelledby="result-title">
+      <!-- 元気の木（左）と、ことば（右）。木が育ったときは、ここで育つところを見せる。木の中身は plant-view.js が作る（家族のページと同じ描き方） -->
+      <div class="result-top">
+        <figure class="result-tree">
+          <svg id="result-plant" class="plant-svg" viewBox="0 0 260 240" aria-hidden="true"></svg>
+          <figcaption>元気の木 <b id="result-plant-label">たね</b></figcaption>
+        </figure>
+        <div class="result-copy">
+          <p class="eyebrow">おつかれさまでした</p>
+          <h1 id="result-title" tabindex="-1">今日の運動、完了です</h1>
+          <p id="result-message" class="result-message"></p>
+          <!-- 木が育ったとき「元気の木が 若葉に なりました」、練習の記録のとき「練習でした」 -->
+          <p id="result-grow" class="result-grow" aria-live="polite" hidden></p>
+          <div id="unlock-message" class="unlock-card" hidden>
+            <canvas id="unlock-pose" class="exercise-pose" aria-hidden="true"></canvas>
+            <p><span>あたらしい運動が えらべます</span><strong id="unlock-name"></strong></p>
+            <button id="unlock-try" class="secondary-button" type="button">あたらしい運動を見てみる</button>
+          </div>
+        </div>
+      </div>
+      <div class="result-grid">
+        <div><span>運動回数</span><strong id="result-count">0回</strong></div>
+        <div><span>運動時間</span><strong id="result-duration">0秒</strong></div>
+        <div><span>簡易スコア</span><strong id="result-score">0点</strong></div>
+        <div><span>体の分析</span><strong id="result-analysis">はじめまして</strong><small id="result-analysis-note" aria-live="polite"></small></div>
+      </div>
+      <div class="line-preview">
+        <span class="line-mark" aria-hidden="true">✉</span>
+        <div><strong>家族へのお知らせ</strong><p id="line-message"></p></div>
+        <span class="sent-badge">家族へは送っていません</span>
+      </div>
+      <div class="result-actions">
+        <button id="go-dashboard" class="primary-button" type="button">成長をみる</button>
+        <button id="return-home" class="secondary-button" type="button">ほかの運動をする</button>
+      </div>
+    </section>
+
+    <section id="view-dashboard" class="view dashboard-view" aria-labelledby="dashboard-title">
+      <div class="section-heading">
+        <div><p class="eyebrow">本人と家族で共有</p><h1 id="dashboard-title" tabindex="-1">元気のダッシュボード</h1></div>
+        <button id="dashboard-exercise" class="primary-button" type="button">運動する</button>
+      </div>
+      <div id="summary-cards" class="summary-cards"></div>
+      <!-- この1週間：運動ごとに、した日に ✓（回数は書かない）。練習だけの日は点線の丸 -->
+      <article class="panel week-panel" aria-labelledby="week-title">
+        <div class="panel-heading"><div><p class="kicker">運動した日</p><h2 id="week-title">この1週間</h2></div>
+          <p class="week-legend"><span><i class="week-mark is-done" aria-hidden="true">✓</i>できました</span><span><i class="week-mark is-practice" aria-hidden="true"></i>練習</span></p></div>
+        <table id="week-grid" class="week-grid"></table>
+      </article>
+      <div class="dashboard-grid">
+        <article class="panel chart-panel">
+          <div class="panel-heading"><div><p class="kicker">最近30日</p><h2>運動した回数</h2></div><span class="legend"><i></i> 回数</span></div>
+          <canvas id="history-chart" height="230" aria-label="過去30日間の運動回数グラフ"></canvas>
+        </article>
+        <article class="panel plant-panel">
+          <div class="panel-heading"><div><p class="kicker">家族で育てる</p><h2>元気の木</h2></div><span id="plant-level" class="level-pill">芽</span></div>
+          <div class="plant-visual" aria-hidden="true">
+            <svg id="plant-svg" class="plant-svg" viewBox="0 0 260 240" role="img"></svg>
+          </div>
+          <p id="plant-message" class="plant-message"></p>
+        </article>
+      </div>
+      <div class="dashboard-grid lower-grid">
+        <article class="panel history-panel">
+          <div class="panel-heading"><div><p class="kicker">運動の便り</p><h2>最近の記録</h2></div></div>
+          <div id="history-body" class="history-list" aria-label="最近の記録"></div>
+        </article>
+        <article class="panel notification-panel">
+          <div class="panel-heading"><div><p class="kicker">家族へ</p><h2>家族へのお知らせ</h2></div><span class="prototype-tag">送っていません</span></div>
+          <div id="notification-list" class="notification-list"></div>
+        </article>
+      </div>
+      <article id="family-album" class="panel album-panel">
+        <div class="panel-heading"><div><p class="kicker">家族の思い出</p><h2>写真アルバム</h2></div><span id="album-count" class="level-pill">0枚</span></div>
+        <div id="album-grid" class="album-grid"></div>
+      </article>
+      <div class="dashboard-actions"><button id="dashboard-exercise-bottom" class="primary-button start-button" type="button">運動する</button></div>
+    </section>
+
+    <section id="view-settings" class="view settings-view" aria-labelledby="settings-title">
+      <div class="section-heading"><div><p class="eyebrow">家族・運営向け</p><h1 id="settings-title" tabindex="-1">音声・目覚まし・運動設定</h1></div><button class="secondary-button feedback-open" type="button" data-feedback-open hidden>感想を送る</button></div>
+      <div class="settings-grid">
+        <article class="panel settings-card">
+          <p class="kicker">孫の声で応援</p><h2>家族音声</h2>
+          <p>録音または音声ファイルを登録すると、運動の途中と完了時に再生します。いくつか登録して、使う声を選べます（8つまで）。</p>
+          <label class="consent-row"><input id="voice-consent" type="checkbox"> 録音者または保護者の同意を得ています</label>
+          <div class="voice-actions">
+            <button id="record-voice" class="secondary-button" type="button">● 録音する</button>
+            <button id="stop-recording" class="secondary-button" type="button" disabled>■ 停止</button>
+            <label class="file-button">音声を選ぶ<input id="voice-upload" type="file" accept="audio/*" hidden></label>
+          </div>
+          <div id="voice-status" class="inline-status">音声はまだ登録されていません。</div>
+          <!-- 登録した声の一覧（8つまで）。使う声を選ぶ・試聴する・消す -->
+          <ul id="voice-list" class="voice-list" hidden></ul>
+          <button id="play-voice" class="text-button" type="button" disabled>使う声を試聴</button>
+          <label class="switch-row"><span>1回ごとに音で知らせる<small>運動中、1回数えるたびに短い音が鳴ります</small></span><input id="rep-sound-enabled" type="checkbox" role="switch" checked></label>
+        </article>
+
+        <article class="panel settings-card">
+          <p class="kicker">孫の声目覚まし</p><h2>目覚まし</h2>
+          <div class="form-grid">
+            <label>時刻<input id="alarm-time" type="time" value="07:30"></label>
+            <label>音量<input id="alarm-volume" type="range" min="10" max="100" value="60"><output id="volume-output">60%</output></label>
+          </div>
+          <fieldset class="weekday-fieldset"><legend>曜日</legend><div id="weekday-options"></div></fieldset>
+          <label class="switch-row"><span>目覚ましを有効にする<small>Motion-Linkの画面を開いているあいだ鳴ります。画面を閉じたりPCを切ったりすると鳴りません。</small></span><input id="alarm-enabled" type="checkbox" role="switch"></label>
+          <!-- 運動する人が2人以上のときだけ（目覚ましは人ごとの設定。D-21） -->
+          <p id="alarm-person-note" class="inline-status" hidden>目覚ましは、いま選んでいる人の設定で鳴ります。</p>
+          <div class="alarm-actions"><button id="test-alarm" class="secondary-button" type="button">目覚ましを試す</button><button id="snooze-alarm" class="text-button" type="button">5分後にもう一度鳴らす</button></div>
+          <div id="snooze-status" class="inline-status snooze-status" hidden><span id="snooze-text"></span><button id="snooze-cancel" class="text-button" type="button">やめる</button></div>
+        </article>
+
+        <article class="panel settings-card admin-card">
+          <p class="kicker">運営設定</p><h2>クリア基準回数</h2>
+          <p>変更は次の運動から使います。</p>
+          <div id="threshold-settings" class="threshold-settings"></div>
+          <button id="save-thresholds" class="primary-button compact" type="button">設定を保存</button>
+          <div class="admin-camera-control">
+            <div><p class="kicker">管理者用</p><h3>カメラの一時停止</h3><p id="admin-camera-status">カメラは利用できます。</p></div>
+            <button id="admin-camera-toggle" class="secondary-button" type="button">カメラを一時停止</button>
+          </div>
+          <!-- 運営の設定（テレビ全体で1つ）。変えるときは管理用のPIN（「運動する人」で開いている間は聞かない） -->
+          <div class="admin-options">
+            <p class="kicker">管理者用</p><h3>運営の設定</h3>
+            <p>変えるときは、管理用のPINを入れます。</p>
+            <label class="switch-row"><span>カメラなしでもクリアにする<small>「カメラなしで1回」などの練習でも、目標の回数に届けばクリアにして、次の運動を選べるようにします（記録は練習のままで、元気の木は育ちません）</small></span><input id="admin-practice-clears" data-admin-option="practiceClears" type="checkbox" role="switch"></label>
+            <label class="switch-row"><span>写真あそびを何回でもできる<small>ふき終わった写真を、もう一度ふけます（2回目からは元気の木は育ちません）</small></span><input id="admin-photo-replay" data-admin-option="photoReplay" type="checkbox" role="switch"></label>
+            <label class="switch-row"><span>立ってする運動も出す<small>立ってかかと上げ・横ステップ・浅いスクワット・椅子から立つを、運動の一覧に出します（はじめは座ってする運動だけ）</small></span><input id="admin-show-standing" data-admin-option="showStanding" type="checkbox" role="switch"></label>
+          </div>
+        </article>
+
+        <article class="panel settings-card family-notes-card">
+          <p class="kicker">ご家族・運営の方へ</p><h2>記録とお知らせ</h2>
+          <p>ご家族向けのお知らせは、本人の画面には出ません。ご家族用のPINか管理用のPINを入れている間だけここに表示し、しばらく操作がないと自動で隠れます。</p>
+          <form id="family-notes-form" class="pin-form"><label><span id="family-notes-pin-label">ご家族用のPIN</span><input id="family-notes-pin" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></label><button class="secondary-button compact" type="submit">開く</button></form>
+          <!-- PIN がはじめのままの人だけ（PIN を入れている間）。変えると消える -->
+          <p id="pin-initial-note" class="pin-initial-note" hidden>PINがはじめのままです。家族の端末をつなぐ前に変えてください。</p>
+          <!-- 本人の呼び名（家族へのお知らせの文に使う）。PIN を入れている間だけ変えられる -->
+          <form id="user-name-form" class="name-form" hidden><label>本人の呼び名<input id="user-name" type="text" maxlength="12" autocomplete="off"></label><button class="secondary-button compact" type="submit">呼び名を保存</button></form>
+          <div id="family-notes-list" class="notification-list" hidden></div>
+          <!-- 数え方がこの人に合っているか（F5。家族だけ。PIN を入れている間だけ。家族の端末の PIN の先と同じ文） -->
+          <section id="family-accuracy" class="family-accuracy" hidden>
+            <h3>数え方がこの人に合っているか</h3>
+            <div id="family-accuracy-body"></div>
+          </section>
+          <!-- 体の動きを読む仕組みの今の様子と、練習の記録になったわけ（PIN を入れている間だけ。本人の画面には「練習」とだけ出す） -->
+          <section id="family-practice" class="family-practice" hidden>
+            <h3>練習の記録になったわけ</h3>
+            <p id="family-pose-status" class="family-pose-status"></p>
+            <div id="family-practice-list" class="notification-list"></div>
+          </section>
+          <!-- カメラの映り方の確認（頭・肩・腰・ひざ・足首が映っているか）。PIN を入れている間だけ -->
+          <button id="camera-check-open" class="secondary-button compact" type="button" hidden>カメラの映り方を確かめる</button>
+          <!-- この人のご家族用のPINを変える（PIN を入れている間だけ）。数字は表示せず、塩を足したハッシュだけを保存する -->
+          <form id="pin-change" class="pin-change" hidden>
+            <h3>PINを変える</h3>
+            <label>いまのPIN<input data-pin="current" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></label>
+            <label>新しいPIN（4〜8けたの数字）<input data-pin="next" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></label>
+            <label>新しいPINをもう一度<input data-pin="again" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></label>
+            <button class="secondary-button compact" type="submit">PINを変える</button>
+            <p class="pin-change-status" role="status" aria-live="polite"></p>
+          </form>
+          <!-- 家族の端末（家族のしくみがあるとき・PIN を入れている間だけ）。つなぐための番号と QR は最長5分だけ出す -->
+          <section id="family-devices" class="family-devices" hidden>
+            <h3>家族の端末</h3>
+            <p>ご家族のスマホで、記録を見たり写真を送ったりできます。キーボードかマウスで操作します。</p>
+            <button id="family-pair" class="secondary-button compact" type="button">家族の端末をつなぐ</button>
+            <p id="family-devices-status" class="inline-status" role="status" aria-live="polite"></p>
+            <div id="family-pairing" class="family-pairing" hidden>
+              <img id="family-pairing-qr" class="family-pairing-qr" alt="家族の端末で読みこむQRコード" width="220" height="220">
+              <div>
+                <p>スマホのカメラでQRコードを読みこむか、下のアドレスを開いてください。5分で消えます（この欄が閉じたときも消えます）。</p>
+                <p class="family-pairing-code">番号 <strong id="family-pairing-code"></strong></p>
+                <ul id="family-pairing-urls" class="family-pairing-urls"></ul>
+              </div>
+            </div>
+            <ul id="family-device-list" class="family-device-list"></ul>
+          </section>
+          <button id="family-notes-close" class="text-button" type="button" hidden>閉じる</button>
+        </article>
+
+        <!-- 運動する人（F0）。名前の一覧はいつも見せ、足す・名前を変える・消す・管理用のPINを変えるは管理用のPINを入れている間だけ -->
+        <article class="panel settings-card people-card">
+          <p class="kicker">人ごとの記録</p><h2>運動する人</h2>
+          <p>テレビで運動する人を登録します。人ごとに、記録・元気の木・体の分析・アルバム・家族の端末を分けます。人を足す・名前を変える・消すには、管理用のPINが要ります。キーボードかマウスで操作します。</p>
+          <ul id="people-list" class="people-list"></ul>
+          <form id="people-admin-form" class="pin-form"><label>管理用のPIN<input id="people-admin-pin" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></label><button class="secondary-button compact" type="submit">開く</button></form>
+          <div id="people-admin" class="people-admin" hidden>
+            <form id="person-add-form" class="name-form"><label>人を足す<input id="person-add-name" type="text" maxlength="12" autocomplete="off"></label><button class="secondary-button compact" type="submit">足す</button></form>
+            <!-- 6人のときだけ（足せないわけ） -->
+            <p id="person-add-full" class="people-full" hidden></p>
+            <div id="people-rows" class="people-rows"></div>
+            <!-- 管理用のPINがはじめのままの間だけ -->
+            <p id="admin-pin-initial-note" class="pin-initial-note" hidden>管理用のPINがはじめのままです。下の「管理用のPINを変える」で変えてください。</p>
+            <form id="admin-pin-change" class="pin-change">
+              <h3>管理用のPINを変える</h3>
+              <label>いまのPIN<input data-pin="current" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></label>
+              <label>新しいPIN（4〜8けたの数字）<input data-pin="next" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></label>
+              <label>新しいPINをもう一度<input data-pin="again" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></label>
+              <button class="secondary-button compact" type="submit">PINを変える</button>
+              <p class="pin-change-status" role="status" aria-live="polite"></p>
+            </form>
+            <button id="people-admin-close" class="text-button" type="button">閉じる</button>
+          </div>
+          <p id="people-status" class="inline-status people-status" role="status" aria-live="polite"></p>
+        </article>
+
+        <article class="panel settings-card">
+          <p class="kicker">継続改善</p><h2>アイデアバックログ</h2>
+          <form id="idea-form" class="idea-form"><label>新しいアイデア<input id="idea-input" type="text" maxlength="80" placeholder="例：家族から写真を届ける"></label><button class="secondary-button compact" type="submit">追加</button></form>
+          <ul id="idea-list" class="idea-list"></ul>
+        </article>
+      </div>
+      <div class="data-controls">
+        <div><strong>試作データの保存先</strong><span>履歴・設定・音声・体の分析（数値だけ）はこのブラウザのローカル領域だけに保存します。</span></div>
+        <button id="reset-profile" class="text-button" type="button">体の分析をやり直す</button>
+        <button id="reset-data" class="text-button danger" type="button">試作データを初期化</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <!-- テレビで読める大きさの確認・PINの入力（ブラウザの小さな確認画面は使わない） -->
+  <dialog id="tv-dialog" class="tv-dialog" aria-labelledby="tv-dialog-text">
+    <p id="tv-dialog-text"></p>
+    <label id="tv-dialog-pin-row" class="tv-dialog-pin" hidden><span id="tv-dialog-pin-label"></span><input id="tv-dialog-pin" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></label>
+    <p id="tv-dialog-error" class="tv-dialog-error" role="alert" hidden></p>
+    <div class="dialog-actions">
+      <button id="tv-dialog-no" class="secondary-button" type="button">やめる</button>
+      <button id="tv-dialog-yes" class="primary-button" type="button">はい</button>
+    </div>
+  </dialog>
+  <!-- 感想を送る（使ってみた人のご意見。家族のしくみへ送り、この PC の中にためる。外へは出さない） -->
+  <dialog id="feedback-dialog" class="tv-dialog feedback-dialog" aria-labelledby="feedback-title">
+    <h2 id="feedback-title">感想を送る</h2>
+    <p class="feedback-lead">使ってみてどうでしたか？ 当てはまるものを1つ選んでください。ひとことも書けます。</p>
+    <!-- 体験版（家族のしくみがない）：感想は「ダウンロード」にファイルで残し、配った人へ送ってもらう -->
+    <p id="feedback-file-note" class="feedback-lead" hidden>感想はこのPCの「ダウンロード」にファイルで保存します。そのファイルを、この体験版を送ってくれた人に送ってください。</p>
+    <div class="feedback-kinds" role="group" aria-label="感想の種類">
+      <button type="button" class="feedback-kind" data-feedback-kind="good" aria-pressed="false">よかった</button>
+      <button type="button" class="feedback-kind" data-feedback-kind="confusing" aria-pressed="false">わかりにくい</button>
+      <button type="button" class="feedback-kind" data-feedback-kind="broken" aria-pressed="false">うまく動かない</button>
+      <button type="button" class="feedback-kind" data-feedback-kind="idea" aria-pressed="false">こうしてほしい</button>
+    </div>
+    <label class="feedback-text"><span>ひとこと（なくてもよい）</span><textarea id="feedback-text" maxlength="500" rows="3"></textarea></label>
+    <p id="feedback-error" class="tv-dialog-error" role="alert" hidden></p>
+    <div class="dialog-actions">
+      <button id="feedback-cancel" class="secondary-button" type="button">やめる</button>
+      <button id="feedback-send" class="primary-button" type="button">送る</button>
+    </div>
+  </dialog>
+  <!-- 人を選ぶ画面（運動選択の名前のボタンから。PIN は聞かない）。矢印で名前を選び、決定で切り替える。Esc・「やめる」で閉じる -->
+  <dialog id="person-picker" class="tv-dialog person-picker" aria-labelledby="person-picker-title">
+    <h2 id="person-picker-title">だれが運動しますか？</h2>
+    <div id="person-picker-list" class="person-picker-list"></div>
+    <div class="dialog-actions"><button id="person-picker-cancel" class="secondary-button" type="button">やめる</button></div>
+  </dialog>
+  <!-- ご家族のカメラの映り方の確認（設定の「ご家族・運営の方へ」で PIN を入れたときだけ開く）。映像は保存しない -->
+  <dialog id="camera-check" class="camera-check" aria-labelledby="camera-check-title">
+    <h2 id="camera-check-title">カメラの映り方</h2>
+    <p id="camera-check-lead" class="camera-check-lead"></p>
+    <div class="camera-check-body">
+      <div class="camera-check-picture"><video id="camera-check-video" muted playsinline></video><canvas id="camera-check-overlay" aria-hidden="true"></canvas></div>
+      <ul id="camera-check-parts" class="camera-check-parts"></ul>
+    </div>
+    <p id="camera-check-advice" class="camera-check-advice" aria-live="polite"></p>
+    <div class="dialog-actions"><span class="camera-check-note">映像は保存しません</span><button id="camera-check-close" class="primary-button" type="button">閉じる</button></div>
+  </dialog>
+  <!-- 更新したら ?v= を変える（ブラウザに古いファイルが残らないように。app.js の motion-ai.js も同じ値を使う） -->
+  <script src="logic.js?v=2026.10.13-3"></script>
+  <script src="pin-hash.js?v=2026.10.13-3"></script>
+  <script src="media-store.js?v=2026.10.13-3"></script>
+  <script src="plant-view.js?v=2026.10.13-3"></script>
+  <script src="family-sync.js?v=2026.10.13-3"></script>
+  <script src="local-sensor.js?v=2026.10.13-3"></script>
+  <script src="app.js?v=2026.10.13-3"></script>
+</body>
+</html>

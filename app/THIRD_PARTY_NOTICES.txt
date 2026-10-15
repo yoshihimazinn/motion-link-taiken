@@ -1,0 +1,15 @@
+Motion-Link prototype - third party notices
+
+MediaPipe Tasks Vision 0.10.32
+Copyright 2023 The MediaPipe Authors
+License: Apache License 2.0
+Package: https://www.npmjs.com/package/@mediapipe/tasks-vision/v/0.10.32
+
+MediaPipe Pose Landmarker Full (float16)
+Source: https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task
+
+MediaPipe Pose Landmarker Heavy (float16)
+Source: https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task
+
+The JavaScript runtime, WebAssembly files, and pose model are bundled locally so
+camera frames can be processed on this computer without uploading video.

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" role="img" aria-label="テレビの上にカメラ。その正面、大きく2歩ほど離れた椅子に すわった人">
+  <!-- はじめての使い方 1枚目：横から見た部屋。テレビの上のカメラ・床の点線（大きく2歩ぶん）・椅子にすわった人（数字は書かない） -->
+  <rect x="0" y="0" width="400" height="240" rx="18" fill="#fbf6ec"/>
+  <rect x="0" y="206" width="400" height="34" fill="#efe4cf"/>
+  <!-- テレビ台とテレビ（横から見た薄い板） -->
+  <rect x="18" y="168" width="70" height="38" rx="5" fill="#d9ccb2"/>
+  <rect x="44" y="58" width="16" height="110" rx="4" fill="#1c2b26"/>
+  <rect x="58" y="70" width="5" height="86" rx="2" fill="#4a5852"/>
+  <!-- テレビの上のカメラ（正面＝右を向く） -->
+  <rect x="38" y="38" width="30" height="20" rx="5" fill="#1d6b4e"/>
+  <circle cx="68" cy="48" r="7" fill="#fff" stroke="#1d6b4e" stroke-width="4"/>
+  <path d="M80 40 l18 -6 M80 48 h20 M80 56 l18 6" stroke="#e8892b" stroke-width="4" stroke-linecap="round"/>
+  <!-- 床の点線：大きく2歩ぶん（足あと2つ） -->
+  <path d="M96 214 H262" stroke="#1d6b4e" stroke-width="4" stroke-dasharray="12 10" stroke-linecap="round"/>
+  <path d="M96 204 v20 M262 204 v20" stroke="#1d6b4e" stroke-width="4" stroke-linecap="round"/>
+  <g fill="#c4560f">
+    <ellipse cx="140" cy="199" rx="15" ry="7"/>
+    <ellipse cx="208" cy="199" rx="15" ry="7"/>
+  </g>
+  <!-- 椅子（横から）：背もたれは右、座面、脚 -->
+  <g fill="#ead9bb" stroke="#b89d6e" stroke-width="2">
+    <rect x="322" y="86" width="12" height="82" rx="5"/>
+    <rect x="262" y="146" width="74" height="13" rx="6"/>
+    <rect x="268" y="156" width="9" height="52" rx="4"/>
+    <rect x="322" y="156" width="9" height="52" rx="4"/>
+  </g>
+  <!-- すわった人（左のテレビを向く） -->
+  <g fill="none" stroke="#1c2b26" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M310 142 L304 96"/>
+    <path d="M305 104 L284 126 L270 124"/>
+    <path d="M310 142 H272 L270 200 H254"/>
+  </g>
+  <circle cx="300" cy="74" r="15" fill="#fff" stroke="#1c2b26" stroke-width="6"/>
+  <circle cx="292" cy="72" r="2.5" fill="#1c2b26"/>
+</svg>
